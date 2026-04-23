@@ -289,7 +289,7 @@ def home():
     <!DOCTYPE html>
     <html>
     <head>
-      <title>CS Resume Generator</title>
+      <title>Resume Generator</title>
       <style>
         body { font-family: Arial, sans-serif; max-width: 500px; margin: 60px auto; }
         h2   { color: #2c3e50; }
@@ -304,7 +304,7 @@ def home():
       </style>
     </head>
     <body>
-      <h2>📄 Resume Generator</h2>
+      <h2>📄 CS Resume Generator</h2>
       <form method="POST" action="/upload" enctype="multipart/form-data">
         <label>Upload your resume (.pdf or .docx):</label>
         <input type="file" name="resume" accept=".pdf,.docx" required>
