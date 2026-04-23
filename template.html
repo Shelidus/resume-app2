@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{name}} - Resume</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Condensed:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e0e0e0;
+    font-family: 'Roboto', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 0px 0;
+    margin: 0;
+  }
+
+  .page {
+    width: 900px;
+    background: #fff;
+    position: relative;
+    padding: 0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    margin: 0;  
+  }
+
+  /* HEADER */
+.header {
+  margin-top: 0mm;
+  background: #393838;
+  text-align: center;
+  padding: 40px 40px 50px;
+  position: relative;
+}
+
+
+.title-wrapper {
+  display: inline-flex; 
+  justify-content: center;   /* 👈 centers content */
+  align-items: center;
+  position: relative;
+  padding: 20px 30px 30px;   
+  border: 2px solid #d6d6d6;
+  min-width: 450px;   /* 👈 fixed starting size */
+  max-width: 100%;  
+  margin: 0 auto;
+}
+
+/* NAME */
+.header h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  font-family: 'Roboto Condensed', Arial, sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* SUBTITLE BAR */
+.subtitle-bar {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 20%); ;
+  bottom: -14px;
+  background: #3a5068;
+  padding: 8px 20px;
+  z-index: 2;
+
+  width: 400px;        /* ✅ DEFAULT WIDTH */
+  text-align: center;
+}
+
+.subtitle-bar span {
+  color: #ffffff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 16px;
+  font-family: 'Roboto Condensed', Arial, sans-serif;
+
+  white-space: normal;     /* ✅ allows wrapping */
+  overflow-wrap: break-word;
+  line-height: 1.4;
+}
+/* CUT THE BORDER WHERE BAR OVERLAPS */
+/* LEFT GAP */
+/* LEFT GAP */
+.title-wrapper::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  bottom: 20px;        /* 🔥 adjust vertical position */
+  width: 2px;
+  height: 50px;        /* 🔥 gap size */
+  background: #393838; /* same as header */
+  z-index: 2;
+}
+
+/* RIGHT GAP */
+.title-wrapper::after {
+  content: "";
+  position: absolute;
+  right: -2px;
+  bottom: 20px;
+  width: 2px;
+  height: 50px;
+  background: #393838;
+  z-index: 2;
+}
+  /* Title Box */
+  
+
+ 
+  /* CONTENT AREA */
+  .content {
+    padding: 0 36px 30px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    margin: 22px 0 10px;
+  }
+  .section-header .section-title {
+    background: #2c3e50;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 18px 5px 12px;
+    position: relative;
+    font-family: 'Roboto Condensed', Arial, sans-serif;
+  }
+  .section-header .section-title::after {
+    content: '';
+    position: absolute;
+    right: -14px;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    border-left: 14px solid #2c3e50;
+  }
+  .section-header .section-line {
+    flex: 1;
+    height: 1px;
+    background: #c5d5e0;
+    margin-left: 20px;
+    margin-right: 10px;
+  }
+
+  /* SUMMARY */
+  .summary-list {
+    list-style: none;
+    padding: 0;
+  }
+  .summary-list li {
+    font-size: 12.5px;
+    color: #333;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .summary-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #2c3e50;
+    font-size: 14px;
+  }
+
+  .summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-inline {
+  height: 35px;
+  margin-left: 10px;
+  flex-shrink: 0;   /* 🔥 IMPORTANT */
+}
+
+  /* SKILLS TABLE */
+  .skills-table {
+    width: 100%;
+    border: 1px solid #d0dde6;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .skills-row {
+    display: flex;
+    border-bottom: 1px solid #d0dde6;
+  }
+  .skills-row:last-child {
+    border-bottom: none;
+  }
+  .skills-label {
+    width: 190px;
+    min-width: 190px;
+    background: #f4f8fb;
+    color: #2c6080;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #d0dde6;
+    line-height: 1.4;
+  }
+  .skills-tags {
+    flex: 1;
+    padding: 8px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .tag {
+    background: #fff;
+    border: 1px solid #b8cdd8;
+    border-radius: 3px;
+    color: #3a4a58;
+    font-size: 11px;
+    padding: 3px 10px;
+    white-space: nowrap;
+  }
+
+  /* CERTIFICATIONS */
+  .cert-box {
+    background: #f4f8fb;
+    border: 1px solid #c8dce8;
+    border-radius: 4px;
+    padding: 12px 18px;
+    margin-bottom: 8px;
+    text-align: center;
+    color: #333;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  /* WORK EXPERIENCE */
+  .work-entry {
+    margin-bottom: 10px;
+  }
+  .company-bar {
+    background: #2c3e50;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .company-dot {
+    width: 10px;
+    height: 10px;
+    background: #7fb3c8;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .work-meta {
+    font-size: 11.5px;
+    color: #2c6080;
+    margin-bottom: 3px;
+  }
+  .work-meta span {
+    font-weight: 600;
+  }
+  .work-responsibilities {
+    list-style: none;
+    padding: 0;
+  }
+  .work-responsibilities li {
+    font-size: 11.5px;
+    color: #333;
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .work-responsibilities li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #2c3e50;
+  }
+
+  /* CAREER SYNOPSIS */
+  .career-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #333;
+    padding: 4px 0;
+    border-bottom: 1px solid #e8eef2;
+  }
+  .career-row:last-child { border-bottom: none; }
+
+  /* EDUCATION */
+  .edu-entry {
+    font-size: 12px;
+    color: #333;
+    padding: 4px 0;
+  }
+
+
+
+body {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+
+* {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="title-wrapper">
+    <h1>{{name}}</h1>
+    <div class="subtitle-bar">
+      <span>{{title}}</span>
+    </div>
+  </div>
+</div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- SUMMARY -->
+    <div class="section-header summary-row">
+  <div class="section-title">SUMMARY</div>
+  <div class="section-line"></div>
+
+  <img src="https://raw.githubusercontent.com/Shelidus/resume-app/main/logo.png" class="logo-inline">
+</div>
+    <ul class="summary-list">
+      {{summary_points}}
+    </ul>
+
+    <!-- TECHNICAL SKILLS -->
+    <div class="section-header">
+      <div class="section-title">TECHNICAL SKILLS</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-table">
+      {{skills_section}}
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <div class="section-header">
+      <div class="section-title">CERTIFICATIONS</div>
+      <div class="section-line"></div>
+    </div>
+    {{certifications}}
+
+    <!-- WORK EXPERIENCE -->
+    <div class="section-header">
+      <div class="section-title">WORK EXPERIENCE</div>
+      <div class="section-line"></div>
+    </div>
+    <div class="work-entry">
+      <div class="company-bar">
+        <span class="company-dot"></span>
+        {{company_name}}
+      </div>
+      <div style="padding-left: 4px;">
+        <div class="work-meta"><span>Role:</span> {{role}}</div>
+        <div class="work-meta"><span>Duration:</span> {{duration}}</div>
+        <div class="work-meta"><span>Description:</span> {{company_description}}</div>
+        <div class="work-meta" style="margin-top:4px;"><span>Roles and Responsibilities:</span></div>
+        <ul class="work-responsibilities">
+          {{responsibilities}}
+        </ul>
+      </div>
+    </div>
+
+    <!-- CAREER SYNOPSIS -->
+    <div class="section-header">
+      <div class="section-title">CAREER SYNOPSIS</div>
+      <div class="section-line"></div>
+    </div>
+    {{career_synopsis}}
+
+    <!-- EDUCATION -->
+    <div class="section-header">
+      <div class="section-title">EDUCATION</div>
+      <div class="section-line"></div>
+    </div>
+    {{education}}
+
+  </div><!-- end content -->
+</div><!-- end page -->
+</body>
+</html>
