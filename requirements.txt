@@ -2,4 +2,5 @@ flask
 pdfplumber
 python-docx
 playwright
-google-generativeai
+google-genai
+playwright==1.58.0
