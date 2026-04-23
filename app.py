@@ -289,7 +289,7 @@ def home():
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Resume Generator</title>
+      <title>CS Resume Generator</title>
       <style>
         body { font-family: Arial, sans-serif; max-width: 500px; margin: 60px auto; }
         h2   { color: #2c3e50; }
