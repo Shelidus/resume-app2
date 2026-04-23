@@ -28,8 +28,8 @@ def html_to_pdf(html_path, pdf_path):
             format="A4",
             print_background=True,
             margin={
-                "top": "6mm",
-                "bottom": "0mm",
+                "top": "0mm",
+                "bottom": "6mm",
                 "left": "0mm",
                 "right": "0mm"
             }
@@ -285,13 +285,35 @@ def generate_resume(data):
 
 @app.route("/")
 def home():
-    return '''
-    <h2>Upload Resume</h2>
-    <form method="POST" action="/upload" enctype="multipart/form-data">
-        <input type="file" name="resume" required>
-        <button type="submit">Generate Resume</button>
-    </form>
-    '''
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Resume Generator</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 60px auto; }
+        h2   { color: #2c3e50; }
+        input[type=file] { margin: 16px 0; display: block; }
+        button {
+          background: #2c3e50; color: #fff;
+          border: none; padding: 10px 24px;
+          border-radius: 4px; cursor: pointer; font-size: 14px;
+        }
+        button:hover { background: #3a5068; }
+        .note { font-size: 12px; color: #888; margin-top: 8px; }
+      </style>
+    </head>
+    <body>
+      <h2>📄 Resume Generator</h2>
+      <form method="POST" action="/upload" enctype="multipart/form-data">
+        <label>Upload your resume (.pdf or .docx):</label>
+        <input type="file" name="resume" accept=".pdf,.docx" required>
+        <button type="submit">Generate PDF Resume</button>
+      </form>
+      <p class="note">Powered by Gemini + Playwright</p>
+    </body>
+    </html>
+    """
 
 
 @app.route("/upload", methods=["POST"])
@@ -299,29 +321,46 @@ def upload():
     file = request.files.get("resume")
 
     if not file:
-        return "No file uploaded"
+        return "No file uploaded", 400
 
-    file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+    filename  = file.filename or "resume"
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(file_path)
 
     try:
-        text = extract_text(file_path)
+        print(f"\n📁 File saved: {file_path}")
 
+        print("📄 Extracting text...")
+        text = extract_text(file_path)
+        print(f"✅ Text extracted: {len(text)} chars")
+
+        print("🤖 Calling Gemini...")
         parsed_data = parse_resume(text)
+        print(f"✅ Gemini done: {list(parsed_data.keys()) if parsed_data else 'EMPTY'}")
+
         parsed_data = normalize_data(parsed_data)
 
         if not parsed_data:
-            return "Failed to parse resume. Check terminal logs."
+            return "Failed to parse resume — Gemini returned empty. Check terminal.", 500
 
-        output_file = generate_resume(parsed_data)
+        print("🖊️  Generating HTML...")
+        output_html = generate_resume(parsed_data)
+        print(f"✅ HTML written: {output_html}")
 
-        pdf_file = output_file.replace(".html", ".pdf")
-        html_to_pdf(output_file, pdf_file)
-        return send_file(pdf_file, as_attachment=True)
+        output_pdf = output_html.replace(".html", ".pdf")
+
+        print("🖨️  Rendering PDF with Playwright...")
+        html_to_pdf(output_html, output_pdf)
+        print(f"✅ PDF written: {output_pdf}")
+
+        return send_file(output_pdf, as_attachment=True, download_name="resume.pdf")
 
     except Exception as e:
-        return f"Error: {str(e)}"
-
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"\n❌ UPLOAD ERROR:\n{error_detail}")
+        # Return full traceback in browser so you can see exactly what failed
+        return f"<pre>ERROR:\n{error_detail}</pre>", 500
 
 # ── RUN ───────────────────────────────────────────────
 
