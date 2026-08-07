@@ -228,14 +228,33 @@ def build_certifications_section(items):
 
 def build_career(items):
     html = ""
+
     for c in items:
-        if isinstance(c, dict):
-            html += f'''
-            <div class="career-row">
-              <span>{c.get("company","")} - {c.get("role","")}</span>
-              <span>{c.get("duration","")}</span>
+        if not isinstance(c, dict):
+            continue
+
+        company = c.get("company", "")
+        role = c.get("role", "")
+        duration = c.get("duration", "")
+
+        html += f"""
+        <div class="career-row">
+
+            <div class="career-company">
+                {company}
             </div>
-            '''
+
+            <div class="career-role">
+                {role}
+            </div>
+
+            <div class="career-duration">
+                {duration}
+            </div>
+
+        </div>
+        """
+
     return html
 
 
