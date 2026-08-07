@@ -141,16 +141,17 @@
     position: relative;
     font-family: 'Roboto Condensed', Arial, sans-serif;
   }
-  .section-header .section-title::after {
-    content: '';
-    position: absolute;
-    right: -14px;
-    top: 0;
-    width: 0;
-    height: 0;
-    border-top: 14px solid transparent;
-    border-bottom: 14px solid transparent;
-    border-left: 14px solid #2c3e50;
+  .section-header .section-title{
+    background:#2c3e50;
+    color:white;
+    padding:5px 18px 5px 12px;
+    clip-path:polygon(
+        0 0,
+        calc(100% - 14px) 0,
+        100% 50%,
+        calc(100% - 14px) 100%,
+        0 100%
+    );
   }
   .section-header .section-line {
     flex: 1;
@@ -375,11 +376,7 @@ body {
     </div>
 
     <!-- CERTIFICATIONS -->
-    <div class="section-header">
-      <div class="section-title">CERTIFICATIONS</div>
-      <div class="section-line"></div>
-    </div>
-    {{certifications}}
+    {{certifications_section}}
 
     <!-- WORK EXPERIENCE -->
     <div class="section-header">

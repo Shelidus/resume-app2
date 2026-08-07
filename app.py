@@ -207,6 +207,24 @@ def build_skills(skills_dict):
 def build_certifications(items):
     return "".join([f'<div class="cert-box">{c}</div>' for c in items])
 
+def build_certifications_section(items):
+    if not items:
+        return ""
+
+    certs = "".join(
+        f'<div class="cert-box">{c}</div>'
+        for c in items
+    )
+
+    return f"""
+    <div class="section-header">
+        <div class="section-title">CERTIFICATIONS</div>
+        <div class="section-line"></div>
+    </div>
+
+    {certs}
+    """
+
 
 def build_career(items):
     html = ""
@@ -268,6 +286,7 @@ def generate_resume(data):
     html = html.replace("{{summary_points}}", build_list(data.get("summary", [])))
     html = html.replace("{{skills_section}}", build_skills(data.get("skills", {})))
     html = html.replace("{{certifications}}", build_certifications(data.get("certifications", [])))
+    html = html.replace("{{certifications_section}}", build_certifications_section(data.get("certifications", [])))
     html = html.replace("{{responsibilities}}", build_list(data.get("responsibilities", [])))
     html = html.replace("{{career_synopsis}}", build_career(data.get("career", [])))
     html = html.replace("{{education}}", build_education(data.get("education", [])))
