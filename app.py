@@ -82,11 +82,13 @@ def normalize_data(data):
         if isinstance(item, dict):
             fixed_career.append(item)
         else:
-            fixed_career.append({
-                "company": item,
+            fixed_career.append({{
+                "company_name": item,
                 "role": "",
-                "duration": ""
-            })
+                "duration": "",
+                "company_description": "",
+                "responsibilities": []
+            }})
     data["career"] = fixed_career
 
     # Fix education
@@ -118,17 +120,21 @@ def parse_resume(text):
     {{
     "name": "",
     "title": "",
-    "company_name": "",
-    "role": "",
-    "duration": "",
-    "company_description": "",
     "summary": [],
     "skills": {{
         "category_name": ["skill1", "skill2"]
     }},
     "certifications": [],
-    "responsibilities": [],
-    "career": [],
+
+    "career":[
+    {{
+        "company_name":"",
+        "role":"",
+        "duration":"",
+        "company_description":"",
+        "responsibilities":[]
+    }}
+    ],
     "education": [
     {{
       "degree": "",
@@ -224,7 +230,53 @@ def build_certifications_section(items):
 
     {certs}
     """
+def build_work_experience(items):
 
+    html = ""
+
+    for job in items:
+
+        company = job.get("company", "")
+        role = job.get("role", "")
+        duration = job.get("duration", "")
+        description = job.get("description", "")
+        responsibilities = job.get("responsibilities", [])
+
+        html += f"""
+        <div class="work-entry">
+
+            <div class="company-bar">
+                <span class="company-dot"></span>
+                {company}
+            </div>
+
+            <div style="padding-left:4px;">
+
+                <div class="work-meta">
+                    <span>Role:</span> {role}
+                </div>
+
+                <div class="work-meta">
+                    <span>Duration:</span> {duration}
+                </div>
+
+                {"<div class='work-meta'><span>Description:</span> "+description+"</div>" if description else ""}
+
+                {
+                    "<div class='work-meta' style='margin-top:6px;'><span>Roles & Responsibilities</span></div>"
+                    if responsibilities else ""
+                }
+
+                <ul class="work-responsibilities">
+                    {''.join(f'<li>{r}</li>' for r in responsibilities)}
+                </ul>
+
+            </div>
+
+        </div>
+        """
+
+    return html
 
 def build_career(items):
     html = ""
@@ -297,16 +349,12 @@ def generate_resume(data):
 
     html = html.replace("{{name}}", data.get("name", ""))
     html = html.replace("{{title}}", data.get("title", ""))
-    html = html.replace("{{company_name}}", data.get("company_name", ""))
-    html = html.replace("{{role}}", data.get("role", ""))
-    html = html.replace("{{duration}}", data.get("duration", ""))
-    html = html.replace("{{company_description}}", data.get("company_description", ""))
-
+    html = html.replace("{{work_experience}}", build_work_experience(data.get("career", [])))
     html = html.replace("{{summary_points}}", build_list(data.get("summary", [])))
     html = html.replace("{{skills_section}}", build_skills(data.get("skills", {})))
     html = html.replace("{{certifications}}", build_certifications(data.get("certifications", [])))
     html = html.replace("{{certifications_section}}", build_certifications_section(data.get("certifications", [])))
-    html = html.replace("{{responsibilities}}", build_list(data.get("responsibilities", [])))
+
     html = html.replace("{{career_synopsis}}", build_career(data.get("career", [])))
     html = html.replace("{{education}}", build_education(data.get("education", [])))
 
