@@ -82,13 +82,13 @@ def normalize_data(data):
         if isinstance(item, dict):
             fixed_career.append(item)
         else:
-            fixed_career.append({{
-                "company_name": item,
+            fixed_career.append({
+                "company": item,
                 "role": "",
                 "duration": "",
                 "company_description": "",
                 "responsibilities": []
-            }})
+            })
     data["career"] = fixed_career
 
     # Fix education
@@ -126,14 +126,15 @@ def parse_resume(text):
     }},
     "certifications": [],
 
-    "career":[
+    "career": [
     {{
-        "company_name":"",
-        "role":"",
-        "duration":"",
-        "company_description":"",
-        "responsibilities":[]
+        "company": "",
+        "role": "",
+        "duration": "",
+        "company_description": "",
+        "responsibilities": []
     }}
+    ],
     ],
     "education": [
     {{
@@ -149,6 +150,7 @@ def parse_resume(text):
     - "skills" must be dynamic
     - Create categories based on resume content
     - DO NOT force predefined categories
+    - "company_description" = a brief description of the COMPANY/ORGANIZATION itself, based only on information available in the resume.
     - Only include categories that exist in the resume
     - Group similar skills under meaningful category names
     - Example categories: "Programming Languages", "Frameworks", "Tools", etc.
@@ -239,7 +241,7 @@ def build_work_experience(items):
         company = job.get("company", "")
         role = job.get("role", "")
         duration = job.get("duration", "")
-        description = job.get("description", "")
+        company_description = job.get("company_description", "")
         responsibilities = job.get("responsibilities", [])
 
         html += f"""
@@ -260,7 +262,8 @@ def build_work_experience(items):
                     <span>Duration:</span> {duration}
                 </div>
 
-                {"<div class='work-meta'><span>Description:</span> "+description+"</div>" if description else ""}
+                { f"<div class='work-meta'><span>Description:</span> {company_description}</div>" if company_description else ""
+}
 
                 {
                     "<div class='work-meta' style='margin-top:6px;'><span>Roles & Responsibilities</span></div>"
@@ -352,7 +355,6 @@ def generate_resume(data):
     html = html.replace("{{work_experience}}", build_work_experience(data.get("career", [])))
     html = html.replace("{{summary_points}}", build_list(data.get("summary", [])))
     html = html.replace("{{skills_section}}", build_skills(data.get("skills", {})))
-    html = html.replace("{{certifications}}", build_certifications(data.get("certifications", [])))
     html = html.replace("{{certifications_section}}", build_certifications_section(data.get("certifications", [])))
 
     html = html.replace("{{career_synopsis}}", build_career(data.get("career", [])))
