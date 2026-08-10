@@ -119,12 +119,12 @@ def parse_resume(text):
     STRUCTURE:
     {{
     "name": "",
-    "title": "",
     "summary": [],
     "skills": {{
         "category_name": ["skill1", "skill2"]
     }},
     "certifications": [],
+    "internships": [],
 
     "career": [
     {{
@@ -134,7 +134,6 @@ def parse_resume(text):
         "company_description": "",
         "responsibilities": []
     }}
-    ],
     ],
     "education": [
     {{
@@ -159,10 +158,18 @@ def parse_resume(text):
     - Extract degree/course name
     - Extract institution/college/university
     - Extract location if available
-    - Extract duration or year (e.g., 2021-2025 or 07/2021 - 07/2022)
+    - Extract duration or passedout year (e.g., April 2025 or Mar 2025)
     - ALWAYS return duration even if approximate
     - DO NOT skip duration if present anywhere in resume
     - DO NOT merge fields into one string
+
+    RULES FOR INTERNSHIPS:
+    - Extract internships separately from regular work experience.
+    - Include an internship only if the resume explicitly mentions an internship, intern, internship experience, summer internship, research internship, or similar.
+    - Do NOT classify regular employment as an internship.
+    - Return each internship as one concise string.
+    - Include the organization/company name, internship role/title, and duration if available.
+    - If there are no internships, return an empty array.
 
     Resume:
     {text}
@@ -232,6 +239,25 @@ def build_certifications_section(items):
 
     {certs}
     """
+
+def build_internships_section(items):
+    if not items:
+        return ""
+
+    internships = "".join(
+        f'<div class="cert-box">{i}</div>'
+        for i in items
+    )
+
+    return f"""
+    <div class="section-header">
+        <div class="section-title">INTERNSHIP EXPERIENCE</div>
+        <div class="section-line"></div>
+    </div>
+
+    {internships}
+    """
+
 def build_work_experience(items):
 
     html = ""
@@ -365,7 +391,7 @@ def generate_resume(data):
     html = html.replace("{{summary_points}}", build_list(data.get("summary", [])))
     html = html.replace("{{skills_section}}", build_skills(data.get("skills", {})))
     html = html.replace("{{certifications_section}}", build_certifications_section(data.get("certifications", [])))
-
+    html = html.replace("{{internships_section}}", build_internships_section(data.get("internships", [])))
     html = html.replace("{{career_synopsis}}", build_career(data.get("career", [])))
     html = html.replace("{{education}}", build_education(data.get("education", [])))
 
@@ -386,28 +412,473 @@ def home():
     <!DOCTYPE html>
     <html>
     <head>
-      <title>Resume Generator</title>
-      <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 60px auto; }
-        h2   { color: #2c3e50; }
-        input[type=file] { margin: 16px 0; display: block; }
-        button {
-          background: #2c3e50; color: #fff;
-          border: none; padding: 10px 24px;
-          border-radius: 4px; cursor: pointer; font-size: 14px;
-        }
-        button:hover { background: #3a5068; }
-        .note { font-size: 12px; color: #888; margin-top: 8px; }
-      </style>
+        <title>CS Resume Generator</title>
+
+        <style>
+
+            * {
+                box-sizing: border-box;
+            }
+
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #f4f7fa;
+                font-family: Arial, sans-serif;
+                color: #26384a;
+            }
+
+            .card {
+                width: 520px;
+                background: white;
+                padding: 40px;
+                border-radius: 16px;
+                box-shadow: 0 15px 45px rgba(0,0,0,0.10);
+            }
+
+            .logo {
+                font-size: 14px;
+                font-weight: bold;
+                letter-spacing: 2px;
+                color: #3f74c7;
+                margin-bottom: 8px;
+            }
+
+            h1 {
+                margin: 0 0 8px;
+                font-size: 28px;
+                color: #26384a;
+            }
+
+            .subtitle {
+                margin: 0 0 30px;
+                color: #7b8794;
+                font-size: 14px;
+            }
+
+            .field {
+                margin-bottom: 22px;
+            }
+
+            label {
+                display: block;
+                font-size: 13px;
+                font-weight: bold;
+                margin-bottom: 8px;
+                color: #34495e;
+            }
+
+            input[type="text"],
+            input[type="file"] {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #d5dde5;
+                border-radius: 8px;
+                font-size: 14px;
+                background: #fff;
+            }
+
+            input[type="text"]:focus {
+                outline: none;
+                border-color: #3f74c7;
+                box-shadow: 0 0 0 3px rgba(63,116,199,0.10);
+            }
+
+            input[type="file"] {
+                cursor: pointer;
+            }
+
+            .generate-btn {
+                width: 100%;
+                padding: 14px;
+                border: none;
+                border-radius: 8px;
+                background: #2c3e50;
+                color: white;
+                font-size: 15px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+            .generate-btn:hover {
+                background: #3a5068;
+            }
+
+            /* LOADING */
+
+            #loading {
+                display: none;
+                text-align: center;
+            }
+
+            .loader {
+                width: 70px;
+                height: 70px;
+                margin: 0 auto 25px;
+
+                border: 5px solid #e8edf3;
+                border-top: 5px solid #3f74c7;
+                border-right: 5px solid #3f74c7;
+
+                border-radius: 50%;
+
+                animation: spin 0.9s linear infinite;
+            }
+
+            @keyframes spin {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loading-title {
+                font-size: 20px;
+                font-weight: bold;
+                color: #26384a;
+                margin-bottom: 10px;
+            }
+
+            .loading-status {
+                font-size: 14px;
+                color: #6c7a89;
+                min-height: 22px;
+            }
+
+            .progress-container {
+                margin-top: 25px;
+                height: 6px;
+                width: 100%;
+                background: #e9eef3;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .progress-bar {
+                height: 100%;
+                width: 10%;
+                background: #3f74c7;
+                border-radius: 10px;
+                transition: width 0.8s ease;
+            }
+
+            .check {
+                display: none;
+                font-size: 50px;
+                margin-bottom: 15px;
+            }
+
+            .error {
+                display: none;
+                margin-top: 20px;
+                padding: 12px;
+                border-radius: 8px;
+                background: #fff1f1;
+                color: #c0392b;
+                font-size: 13px;
+            }
+
+        </style>
     </head>
+
     <body>
-      <h2>📄 CS Resume Generator</h2>
-      <form method="POST" action="/upload" enctype="multipart/form-data">
-        <label>Upload your resume (.pdf or .docx):</label>
-        <input type="file" name="resume" accept=".pdf,.docx" required>
-        <button type="submit">Generate PDF Resume</button>
-      </form>
-      <p class="note">Powered by Gemini + Playwright</p>
+
+        <div class="card">
+
+            <div id="form-section">
+
+                <div class="logo">CAPESTART</div>
+
+                <h1>Resume Generator</h1>
+
+                <p class="subtitle">
+                    Upload a resume and generate a professionally CS formatted PDF.
+                </p>
+
+                <form id="resumeForm">
+
+                    <div class="field">
+                        <label for="title">
+                            Candidate Title
+                        </label>
+
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            placeholder="e.g. Senior Research Analyst"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="resume">
+                            Upload Resume
+                        </label>
+
+                        <input
+                            type="file"
+                            id="resume"
+                            name="resume"
+                            accept=".pdf,.docx"
+                            required
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="generate-btn"
+                        id="generateBtn"
+                    >
+                        Generate Resume
+                    </button>
+
+                </form>
+
+                <div id="error" class="error"></div>
+
+            </div>
+
+
+            <!-- LOADING SCREEN -->
+
+            <div id="loading">
+
+                <div class="loader" id="loader"></div>
+
+                <div class="check" id="check">
+                    ✓
+                </div>
+
+                <div class="loading-title" id="loadingTitle">
+                    Generating Resume
+                </div>
+
+                <div class="loading-status" id="loadingStatus">
+                    Preparing your resume...
+                </div>
+
+                <div class="progress-container">
+                    <div
+                        class="progress-bar"
+                        id="progressBar"
+                    ></div>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <script>
+
+            const form = document.getElementById("resumeForm");
+
+            const formSection = document.getElementById("form-section");
+
+            const loading = document.getElementById("loading");
+
+            const loadingStatus =
+                document.getElementById("loadingStatus");
+
+            const loadingTitle =
+                document.getElementById("loadingTitle");
+
+            const progressBar =
+                document.getElementById("progressBar");
+
+            const loader =
+                document.getElementById("loader");
+
+            const check =
+                document.getElementById("check");
+
+            const errorBox =
+                document.getElementById("error");
+
+
+            form.addEventListener("submit", async function(e) {
+
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                formSection.style.display = "none";
+
+                loading.style.display = "block";
+
+                errorBox.style.display = "none";
+
+
+                const stages = [
+
+                    {
+                        text: "Uploading resume...",
+                        progress: 10
+                    },
+
+                    {
+                        text: "Extracting contents from resume...",
+                        progress: 25
+                    },
+
+                    {
+                        text: "Analyzing resume text...",
+                        progress: 40
+                    },
+
+                    {
+                        text: "Parsing resume information...",
+                        progress: 55
+                    },
+
+                    {
+                        text: "Structuring candidate profile...",
+                        progress: 65
+                    },
+
+                    {
+                        text: "Building resume layout...",
+                        progress: 78
+                    },
+
+                    {
+                        text: "Rendering professional PDF...",
+                        progress: 90
+                    },
+
+                    {
+                        text: "Preparing your download...",
+                        progress: 97
+                    }
+
+                ];
+
+
+                let stageIndex = 0;
+
+
+                function updateStage() {
+
+                    if (stageIndex >= stages.length) {
+                        return;
+                    }
+
+                    loadingStatus.innerText =
+                        stages[stageIndex].text;
+
+                    progressBar.style.width =
+                        stages[stageIndex].progress + "%";
+
+                    stageIndex++;
+
+                }
+
+
+                updateStage();
+
+
+                const stageTimer = setInterval(() => {
+
+                    updateStage();
+
+                }, 1500);
+
+
+                try {
+
+                    const response = await fetch(
+                        "/upload",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                    clearInterval(stageTimer);
+
+
+                    if (!response.ok) {
+
+                        const errorText =
+                            await response.text();
+
+                        throw new Error(errorText);
+
+                    }
+
+
+                    loadingStatus.innerText =
+                        "Resume generated successfully!";
+
+                    progressBar.style.width = "100%";
+
+
+                    const blob =
+                        await response.blob();
+
+
+                    const url =
+                        window.URL.createObjectURL(blob);
+
+
+                    const a =
+                        document.createElement("a");
+
+                    a.href = url;
+
+                    a.download = "resume.pdf";
+
+                    document.body.appendChild(a);
+
+                    a.click();
+
+                    a.remove();
+
+                    window.URL.revokeObjectURL(url);
+
+
+                    loader.style.display = "none";
+
+                    check.style.display = "block";
+
+                    loadingTitle.innerText =
+                        "Resume Ready";
+
+                    loadingStatus.innerText =
+                        "Your PDF has been downloaded.";
+
+                }
+
+                catch(error) {
+
+                    clearInterval(stageTimer);
+
+                    loading.style.display = "none";
+
+                    formSection.style.display = "block";
+
+                    errorBox.style.display = "block";
+
+                    errorBox.innerText =
+                        "Something went wrong while generating the resume.";
+
+                    console.error(error);
+
+                }
+
+            });
+
+        </script>
+
     </body>
     </html>
     """
@@ -417,8 +888,13 @@ def home():
 def upload():
     file = request.files.get("resume")
 
+    title = request.form.get("title", "").strip()
+
     if not file:
         return "No file uploaded", 400
+    
+    if not title:
+        return "Candidate title is required", 400
 
     filename  = file.filename or "resume"
     file_path = os.path.join(UPLOAD_FOLDER, filename)
@@ -435,6 +911,7 @@ def upload():
         parsed_data = parse_resume(text)
         print(f"✅ Gemini done: {list(parsed_data.keys()) if parsed_data else 'EMPTY'}")
 
+        parsed_data["title"] = title
         parsed_data = normalize_data(parsed_data)
 
         if not parsed_data:
