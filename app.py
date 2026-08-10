@@ -314,35 +314,44 @@ def build_career(items):
 
 
 def build_education(items):
+
     html = ""
+
     for e in items:
-        if isinstance(e, dict):
-            degree = e.get("degree", "").strip()
-            institution = e.get("institution", "").strip()
-            location = e.get("location", "").strip()
-            duration = e.get("duration", "").strip()
 
-            line = ""
+        if not isinstance(e, dict):
+            continue
 
-            if degree:
-                line += degree
+        degree = e.get("degree", "").strip()
+        institution = e.get("institution", "").strip()
+        location = e.get("location", "").strip()
+        duration = e.get("duration", "").strip()
 
-            if institution:
-                line += f" - {institution}" if line else institution
+        # Combine institution + location
+        institution_text = institution
 
-            if location:
-                line += f", {location}"
+        if location:
+            institution_text += f", {location}" if institution_text else location
 
-            if duration:
-                line += f" ({duration})"
+        html += f"""
+        <div class="education-row">
 
-            html += f'''
-            <div class="edu-entry">
-              {line}
+            <div class="education-degree">
+                {degree}
             </div>
-            '''
-    return html
 
+            <div class="education-institution">
+                {institution_text}
+            </div>
+
+            <div class="education-duration">
+                {duration}
+            </div>
+
+        </div>
+        """
+
+    return html
 
 # ── TEMPLATE INJECTION ─────────────────────────────────
 
