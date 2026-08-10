@@ -26,14 +26,26 @@
     margin: 0;
   }
 
+
   .page {
     width: 900px;
+    min-height: 279mm;
     background: #fff;
     position: relative;
     padding: 0;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-    margin: 0;  
+    margin: 0;
+    box-shadow: none;
   }
+
+@media print {
+    body {
+        background: #fff;
+    }
+
+    .page {
+        background: #fff;
+    }
+}
 
   /* HEADER */
 .header {
@@ -313,47 +325,75 @@
     color: #2c3e50;
   }
 
-  /* CAREER SYNOPSIS */
+/* DARK SECTIONS */
+
+.dark-section {
+    background: #393838;
+    color: #ffffff;
+
+    margin-left: -36px;
+    margin-right: -36px;
+
+    padding: 1px 36px 18px;
+}
+
+.dark-section .section-line {
+    background: #5f8db0;
+}
+
+
+
+.career-education-section {
+    background: #393838;
+    color: #ffffff;
+
+    margin-left: -36px;
+    margin-right: -36px;
+
+    padding: 1px 36px 18px;
+
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+
+
 /* CAREER SYNOPSIS */
+.career-row {
+    display: grid;
+    grid-template-columns: 45% 35% 20%;
+    align-items: center;
 
-.career-row{
-    display:grid;
-    grid-template-columns:45% 35% 20%;
-    align-items:center;
+    padding: 8px 0;
 
-    padding:8px 0;
+    border-bottom: 1px solid #555;
 
-    border-bottom:1px solid #e5edf3;
-
-    font-size:12px;
+    font-size: 12px;
+    color: #ffffff;
 }
 
-.career-company{
-    padding-right:20px;
+.career-company {
+    padding-right: 20px;
+    color: #ffffff;
 }
 
-.career-role{
-    padding:0 20px;
-
-    border-left:4px solid #3f74c7;
+.career-role {
+    padding: 0 20px;
+    border-left: 4px solid #3f74c7;
+    color: #ffffff;
 }
 
-.career-duration{
-
-    padding-left:20px;
-
-    border-left:4px solid #3f74c7;
-
-    text-align:right;
-
-    white-space:nowrap;
+.career-duration {
+    padding-left: 20px;
+    border-left: 4px solid #3f74c7;
+    text-align: right;
+    white-space: nowrap;
+    color: #ffffff;
 }
 
-.career-row:last-child{
-    border-bottom:none;
+.career-row:last-child {
+    border-bottom: none;
 }
-
-  /* EDUCATION */
 /* EDUCATION */
 
 .education-row {
@@ -363,19 +403,21 @@
 
     padding: 8px 0;
 
-    border-bottom: 1px solid #e5edf3;
+    border-bottom: 1px solid #555;
 
     font-size: 12px;
-    color: #333;
+    color: #ffffff;
 }
 
 .education-degree {
     padding-right: 20px;
+    color: #ffffff;
 }
 
 .education-institution {
     padding: 0 20px;
     border-left: 4px solid #3f74c7;
+    color: #ffffff;
 }
 
 .education-duration {
@@ -383,22 +425,11 @@
     border-left: 4px solid #3f74c7;
     text-align: right;
     white-space: nowrap;
+    color: #ffffff;
 }
 
 .education-row:last-child {
     border-bottom: none;
-}
-
-
-body {
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-
-* {
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
 }
 
 
@@ -450,19 +481,25 @@ body {
     </div>
     {{work_experience}}
 
-    <!-- CAREER SYNOPSIS -->
-    <div class="section-header">
-      <div class="section-title">CAREER SYNOPSIS</div>
-      <div class="section-line"></div>
-    </div>
-    {{career_synopsis}}
+    <div class="dark-section career-education-section">
 
-    <!-- EDUCATION -->
-    <div class="section-header">
-      <div class="section-title">EDUCATION</div>
-      <div class="section-line"></div>
+        <!-- CAREER SYNOPSIS -->
+        <div class="section-header">
+            <div class="section-title">CAREER SYNOPSIS</div>
+            <div class="section-line"></div>
+        </div>
+
+        {{career_synopsis}}
+
+        <!-- EDUCATION -->
+        <div class="section-header education-header">
+            <div class="section-title">EDUCATION</div>
+            <div class="section-line"></div>
+        </div>
+
+        {{education}}
+
     </div>
-    {{education}}
 
   </div><!-- end content -->
 </div><!-- end page -->
